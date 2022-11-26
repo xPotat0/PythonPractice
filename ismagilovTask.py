@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from openpyxl.styles import Font, Color, Border, Side
 
+global file_name, prof_name
 currency_to_rub = {
     "AZN": 35.68,
     "BYR": 23.91,
@@ -276,6 +277,16 @@ def generate_image(salary_by_year, vac_by_year, salary_by_prof, vacancy_by_prof,
     plt.subplots_adjust(wspace=0.3, hspace=0.3)
     plt.show()
 
+
+data_to_show = input('Введите данные для печати:')
+show = (False, False)
+if(data_to_show.lower() == 'Вакансии'.lower()):
+    show = (True, True)
+elif(data_to_show.lower() == 'Статистика'.lower()):
+    show = (True, False)
+else:
+    raise SystemExit('Неверный ввод')
+
 request = request()
 file_name = request[0]
 prof_name = request[1]
@@ -284,13 +295,16 @@ get_filer = csv_filer(get_reader[0], get_reader[1], prof_name)
 result = filter_vac(get_filer[0])
 result_by_prof = filter_vac((get_filer[1]))
 '''print(f'Динамика уровня зарплат по годам: {result[0]}')
-print(f'Динамика количества вакансий по годам: {result[1]}')
-print()
-print(f'Динамика уровня зарплат по годам для выбранной профессии: {result_by_prof[0]}')
-print(f'Динамика количества вакансий по годам для выбранной профессии: {result_by_prof[1]}')
-print()
-print(f'Уровень зарплат по городам (в порядке убывания): {result[2]}')
-print()
+    print(f'Динамика количества вакансий по годам: {result[1]}')
+    print()
+    print(f'Динамика уровня зарплат по годам для выбранной профессии: {result_by_prof[0]}')
+    print(f'Динамика количества вакансий по годам для выбранной профессии: {result_by_prof[1]}')
+    print()
+    print(f'Уровень зарплат по городам (в порядке убывания): {result[2]}')
+    print()
 print(f'Доля вакансий по городам (в порядке убывания): {result[3]}')'''
-#generate_excel(result[0], result[1], result_by_prof[0], result_by_prof[1], result[2], result[3])
-generate_image(result[0], result[1], result_by_prof[0], result_by_prof[1], result[2], result[3])
+if(show[0]):
+    if(show[1]):
+        generate_excel(result[0], result[1], result_by_prof[0], result_by_prof[1], result[2], result[3])
+    else:
+        generate_image(result[0], result[1], result_by_prof[0], result_by_prof[1], result[2], result[3])
