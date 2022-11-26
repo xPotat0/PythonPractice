@@ -20,7 +20,7 @@ currency_to_rub = {
 }
 
 
-def request():
+def request_1():
     file_name = input('Введите название файла: ')
     prof_name = input('Введите название профессии: ')
     return file_name, prof_name
@@ -287,7 +287,7 @@ elif(data_to_show.lower() == 'Статистика'.lower()):
 else:
     raise SystemExit('Неверный ввод')
 
-request = request()
+request = request_1()
 file_name = request[0]
 prof_name = request[1]
 get_reader = csv_reader(file_name)
