@@ -4,6 +4,7 @@ import openpyxl
 import matplotlib.pyplot as plt
 import numpy as np
 from openpyxl.styles import Font, Color, Border, Side
+import doctest
 
 global file_name, prof_name
 currency_to_rub = {
@@ -20,7 +21,13 @@ currency_to_rub = {
 }
 
 
-def request():
+def request_1():
+    """Запрос названия файла и профессии
+
+    :return:
+        str: название файла
+        str: название профессии
+    """
     file_name = input('Введите название файла: ')
     prof_name = input('Введите название профессии: ')
     return file_name, prof_name
@@ -33,7 +40,22 @@ class DataSet:
 
 
 class Vacancy:
+    """Класс для представления вакансии
+
+    Attributes:
+        name (str): Название профессии
+        salary (str): Зарплата от нижней до верхней границы + валюта
+        area_name (str): Место работы
+        published_at (str): Время публикации вакансии
+    """
     def __init__(self, name, salary, area_name, published_at):
+        """Инициализация объекта Vacancy
+
+        :param (str) name: Название профессии
+        :param (Salary) salary: Зарплата от нижней до верхней границы + валюта
+        :param (str) area_name: Место работы
+        :param (str) published_at: Время публикации вакансии
+        """
         self.name = name
         self.salary = salary
         self.area_name = area_name
@@ -41,27 +63,53 @@ class Vacancy:
 
 
 class Salary:
+    """Класс для представления зарплаты
+
+    Attributes:
+        salary_from (float): Нижняя граница вилки оклада
+        salary_to (float): Верхняя граница вилки оклада
+        salary_currency (str): Валюта оклада
+    """
     def __init__(self, salary_from, salary_to, salary_currency):
+        """Инициализация объекта Salary
+
+        :param (float) salary_from: Нижняя граница вилки оклада
+        :param (float) salary_to: Верхняя граница вилки оклада
+        :param (str) salary_currency: Валюта оклада
+        """
         self.salary_from = salary_from
         self.salary_to = salary_to
         self.salary_currency = salary_currency
 
 
-class Report:
+'''class Report:
     def __init__(self):
-        self.a = 0
+        self.a = 0'''
 
 
 clean = re.compile('<.*?>')
 
 
 def clean_html_tags(html_tags):
+    """Очистка текста от html тегов
+
+    :param (str) html_tags: Строка с html тегами, которые необходимо убрать
+    :return:
+        str: Очищенный текст
+    """
     text_without_tags = re.sub(clean, '', html_tags)
     text_without_tags = re.sub(r'\s+', ' ', text_without_tags)
     return text_without_tags.strip()
 
 
 def csv_reader(file_name):
+    """Открывает csv файл и считывает из него данные
+
+    :param (str) file_name: Название файла, который нужно открыть
+    :return:
+        list: Заголовки файла
+        list: Содержимое файла
+    """
     file = open(file_name, encoding="UTF-8-SIG")
     reader = csv.reader(file)
     try:
@@ -76,6 +124,15 @@ def csv_reader(file_name):
 
 
 def csv_filer(reader, list_naming, prof_name):
+    """Убирает html теги и группирует данные по вакансиям. Готовит данные для статистики
+
+    :param (list) reader: Заголовки
+    :param (list) list_naming: Данные файла
+    :param (str) prof_name: Название профессии
+    :return:
+        list: Список вакансий
+        list: Список вакансий по профессии
+    """
     list_of_dict = []
     list_of_dict_by_name = []
     for row in list_naming:
@@ -100,6 +157,12 @@ def csv_filer(reader, list_naming, prof_name):
 
 
 def remaker(_list):
+    """Находит процентное отношение
+
+    :param (dict) _list: СЛоварь из которого находим процентное отношение
+    :return:
+        list: Словарь, где ключу соответствует его процент
+    """
     remaked_list = _list
     for key, value in remaked_list.items():
         try:
@@ -110,6 +173,12 @@ def remaker(_list):
 
 
 def sort_dict(_dict):
+    """Оставляет 10 наибольших значений из словаря
+
+    :param (dict or list) _dict:
+    :return:
+        dict: 10 наибольших значений
+    """
     result = {}
     for key, value in _dict:
         result[key] = value
@@ -119,6 +188,15 @@ def sort_dict(_dict):
 
 
 def filter_vac(list_of_vac):
+    """Формирует статистику по годам
+
+    :param (list) list_of_vac: Список всех вакансий
+    :return:
+        dict: Динамика уровня зарплат по годам
+        int: Динамика количества вакансий по годам
+        dict: Уровень зарплат по городам (в порядке убывания)
+        dict: Доля вакансий по городам (в порядке убывания)
+    """
     dict_of_cort = {}
     salary_by_city = {}
     count_of_vac = 0
@@ -151,6 +229,16 @@ def filter_vac(list_of_vac):
 
 
 def set_default_to_cell(place, title, border, font, is_title):
+    """Формирует нормальный вид ячейки
+
+    :param place: Ячейка
+    :param title: Значение
+    :param border: Граница
+    :param font: Шрифт
+    :param is_title: Является ли загаловком
+    :return:
+        None
+    """
     cell = place
     cell.value = title
     cell.border = border
@@ -159,6 +247,17 @@ def set_default_to_cell(place, title, border, font, is_title):
 
 
 def generate_excel(salary_by_year, vac_by_year, salary_by_prof, vacancy_by_prof, salary_by_city, vacancy_by_city):
+    """Генерация excel файла со статистикой
+
+    :param (dict) salary_by_year: Зарплаты по годам
+    :param (dict) vac_by_year: Количества вакансий по годам
+    :param (dict) salary_by_prof: Зарплата профессии по годам
+    :param (dict) vacancy_by_prof: Количество вакансий по профессии по годам
+    :param (dict) salary_by_city: Зарплата по городам
+    :param (dict) vacancy_by_city: Вакансии по городам
+    :return:
+        Excel file
+    """
     excel_file = openpyxl.Workbook()
     first_sheet = excel_file.active
     first_sheet.title = "Статистика по годам"
@@ -222,6 +321,17 @@ def generate_excel(salary_by_year, vac_by_year, salary_by_prof, vacancy_by_prof,
 
 
 def generate_image(salary_by_year, vac_by_year, salary_by_prof, vacancy_by_prof, salary_by_city, vacancy_by_city):
+    """Генерация графиков со статистикой
+
+    :param (dict) salary_by_year: Зарплаты по годам
+    :param (dict) vac_by_year: Количества вакансий по годам
+    :param (dict) salary_by_prof: Зарплата профессии по годам
+    :param (dict) vacancy_by_prof: Количество вакансий по профессии по годам
+    :param (dict) salary_by_city: Зарплата по городам
+    :param (dict) vacancy_by_city: Вакансии по городам
+    :return:
+        Графики в .PNG
+    """
     '''Двойная диаграмма з/п'''
     cat_par_1 = list(salary_by_year.keys())
     year_val = list(salary_by_year.values())
@@ -287,7 +397,7 @@ elif(data_to_show.lower() == 'Статистика'.lower()):
 else:
     raise SystemExit('Неверный ввод')
 
-request = request()
+request = request_1()
 file_name = request[0]
 prof_name = request[1]
 get_reader = csv_reader(file_name)
