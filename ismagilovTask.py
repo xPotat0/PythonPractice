@@ -55,6 +55,17 @@ class Vacancy:
         :param (Salary) salary: Зарплата от нижней до верхней границы + валюта
         :param (str) area_name: Место работы
         :param (str) published_at: Время публикации вакансии
+
+        >>> type(Vacancy('Prog', Salary(10, 20, 'RUR'), 'Smt', '10/10/10')).__name__
+        'Vacancy'
+        >>> Vacancy('Prog', Salary(10, 20, 'RUR'), 'Smt', '10/10/10').name
+        'Prog'
+        >>> type(Vacancy('Prog', Salary(10, 20, 'RUR'), 'Smt', '10/10/10').salary).__name__
+        'Salary'
+        >>> Vacancy('Prog', Salary(10, 20, 'RUR'), 'Smt', '10/10/10').area_name
+        'Smt'
+        >>> Vacancy('Prog', Salary(10, 20, 'RUR'), 'Smt', '10/10/10').published_at
+        '10/10/10'
         """
         self.name = name
         self.salary = salary
@@ -76,9 +87,18 @@ class Salary:
         :param (float) salary_from: Нижняя граница вилки оклада
         :param (float) salary_to: Верхняя граница вилки оклада
         :param (str) salary_currency: Валюта оклада
+
+        >>> type(Salary(10.0, 20.4, 'RUR')).__name__
+        'Salary'
+        >>> Salary(10.0, 20.4, 'RUR').salary_from
+        10
+        >>> Salary(10.0, 20.4, 'RUR').salary_to
+        20
+        >>> Salary(10.0, 20.4, 'RUR').salary_from
+        'RUR'
         """
-        self.salary_from = salary_from
-        self.salary_to = salary_to
+        self.salary_from = round(salary_from)
+        self.salary_to = round(salary_to)
         self.salary_currency = salary_currency
 
 
@@ -96,6 +116,17 @@ def clean_html_tags(html_tags):
     :param (str) html_tags: Строка с html тегами, которые необходимо убрать
     :return:
         str: Очищенный текст
+
+    >>> clean_html_tags('Hell<p>o</p>')
+    'Hello'
+    >>> clean_html_tags('Some<a>thing</a>')
+    'Something'
+    >>> clean_html_tags('It<a> can<p>not</p> be real!')
+    'It cannot be real!'
+    >>> clean_html_tags('You must <not>see this')
+    'You must see this'
+    >>> (clean_html_tags('World')
+    'World'
     """
     text_without_tags = re.sub(clean, '', html_tags)
     text_without_tags = re.sub(r'\s+', ' ', text_without_tags)
@@ -387,23 +418,29 @@ def generate_image(salary_by_year, vac_by_year, salary_by_prof, vacancy_by_prof,
     plt.subplots_adjust(wspace=0.3, hspace=0.3)
     plt.show()
 
+if(__name__ == '__main__'):
+    data_to_show = input('Введите данные для печати:')
+    show = (False, False)
+    if(data_to_show.lower() == 'Вакансии'.lower()):
+        show = (True, True)
+    elif(data_to_show.lower() == 'Статистика'.lower()):
+        show = (True, False)
+    else:
+        raise SystemExit('Неверный ввод')
 
-data_to_show = input('Введите данные для печати:')
-show = (False, False)
-if(data_to_show.lower() == 'Вакансии'.lower()):
-    show = (True, True)
-elif(data_to_show.lower() == 'Статистика'.lower()):
-    show = (True, False)
-else:
-    raise SystemExit('Неверный ввод')
+    request = request_1()
+    file_name = request[0]
+    prof_name = request[1]
+    get_reader = csv_reader(file_name)
+    get_filer = csv_filer(get_reader[0], get_reader[1], prof_name)
+    result = filter_vac(get_filer[0])
+    result_by_prof = filter_vac((get_filer[1]))
+    if(show[0]):
+        if(show[1]):
+            generate_excel(result[0], result[1], result_by_prof[0], result_by_prof[1], result[2], result[3])
+        else:
+            generate_image(result[0], result[1], result_by_prof[0], result_by_prof[1], result[2], result[3])
 
-request = request_1()
-file_name = request[0]
-prof_name = request[1]
-get_reader = csv_reader(file_name)
-get_filer = csv_filer(get_reader[0], get_reader[1], prof_name)
-result = filter_vac(get_filer[0])
-result_by_prof = filter_vac((get_filer[1]))
 '''print(f'Динамика уровня зарплат по годам: {result[0]}')
     print(f'Динамика количества вакансий по годам: {result[1]}')
     print()
@@ -413,8 +450,3 @@ result_by_prof = filter_vac((get_filer[1]))
     print(f'Уровень зарплат по городам (в порядке убывания): {result[2]}')
     print()
 print(f'Доля вакансий по городам (в порядке убывания): {result[3]}')'''
-if(show[0]):
-    if(show[1]):
-        generate_excel(result[0], result[1], result_by_prof[0], result_by_prof[1], result[2], result[3])
-    else:
-        generate_image(result[0], result[1], result_by_prof[0], result_by_prof[1], result[2], result[3])
